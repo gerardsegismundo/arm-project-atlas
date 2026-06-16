@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+
+  "parameters": {
+    "vmCount": {
+      "type": "int",
+      "defaultValue": 3
+    },
+
+    "createStorage": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+
+  "resources": [
+
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-09-01",
+      "name": "myVnet",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        }
+      }
+    },
+
+    {
+      "condition": "[parameters('createStorage')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+
+      "name": "[toLower(concat('stg', uniqueString(resourceGroup().id)))]",
+
+      "location": "[resourceGroup().location]",
+
+      "sku": {
+        "name": "Standard_LRS"
+      },
+
+      "kind": "StorageV2",
+
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]"
+      ]
+    },
+
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2023-09-01",
+
+      "name": "[concat('vmset-', copyIndex())]",
+
+      "copy": {
+        "name": "vmLoop",
+        "count": "[parameters('vmCount')]"
+      },
+
+      "location": "[resourceGroup().location]",
+
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]"
+      ]
+    }
+
+  ]
+}
