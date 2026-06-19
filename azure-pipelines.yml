@@ -12,7 +12,7 @@ steps:
 # Step 2: Connect to Azure using service connection
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'YOUR-ARM-SERVICE-CONNECTION'
+    azureSubscription: 'gerard-connect-arm'
     scriptType: bash
     scriptLocation: inlineScript
     inlineScript: |
