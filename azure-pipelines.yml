@@ -1,0 +1,30 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+# Step 1: Verify code is pulled
+- checkout: self
+
+# Step 2: Connect to Azure using service connection
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'YOUR-ARM-SERVICE-CONNECTION'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+
+      echo "Creating Resource Group..."
+      az group create \
+        --name devops-rg \
+        --location eastus
+
+      echo "Creating Storage Account..."
+      az storage account create \
+        --name devopsstorage$RANDOM \
+        --resource-group devops-rg \
+        --location eastus \
+        --sku Standard_LRS
